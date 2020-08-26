@@ -1,29 +1,36 @@
 # terraform-aws-imagebuilder-component-shell
 Terraform module that creates EC2 Image Builder components with CloudFormation
 
-[![tflint](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/workflows/tflint/badge.svg?branch=main&event=push)](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/actions?query=workflow%3Atflint+event%3Apush+branch%3Amain)
-[![tfsec](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/workflows/tfsec/badge.svg?branch=main&event=push)](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/actions?query=workflow%3Atfsec+event%3Apush+branch%3Amain)
-[![yamllint](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/workflows/yamllint/badge.svg?branch=main&event=push)](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/actions?query=workflow%3Ayamllint+event%3Apush+branch%3Amain)
-[![misspell](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/workflows/misspell/badge.svg?branch=main&event=push)](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/actions?query=workflow%3Amisspell+event%3Apush+branch%3Amain)
-[![pre-commit-check](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/workflows/pre-commit-check/badge.svg?branch=main&event=push)](https://github.com/rhythmictech/terraform-aws-imagebuilder-component-shell/actions?query=workflow%3Apre-commit-check+event%3Apush+branch%3Amain)
-<a href="https://twitter.com/intent/follow?screen_name=RhythmicTech"><img src="https://img.shields.io/twitter/follow/RhythmicTech?style=social&logo=twitter" alt="follow on Twitter"></a>
-
 ## Example
 ```hcl
 module "test_shell_component" {
-  source  = "rhythmictech/imagebuilder-component-shell/aws"
+  source  = "github.com/mike-carey/terraform-aws-imagebuilder-component-s3"
   version = "~> 0.1.0"
 
   component_version = "1.0.0"
   description       = "Testing component"
   name              = "testing-component"
-  commands          = ["echo 'Testing Component'"]
   tags              = local.tags
+
+  buckets = [
+    {
+      source = "s3://download-bucket/file.txt"
+      destination = "/var/ami/file.txt"
+    },
+    {
+      source = "s3://download-bucket/dependencies/*"
+      destination = "/var/ami/deps"
+    },
+    {
+      source = "/var/log/my-custom-script.log"
+      destination = "s3://upload-bucket/logs/my-custom-script.log"
+    },
+  ]
 }
 ```
 
 ## About
-This module bridges the gap allowing Terraform to create EC2 Image Builder components (especially with Ansible) until native support is added to Terraform
+This module bridges the gap allowing Terraform to create EC2 Image Builder components (especially with S3) until native support is added to Terraform
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -43,7 +50,7 @@ This module bridges the gap allowing Terraform to create EC2 Image Builder compo
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| commands | List of strings. Each string is a shell command | `list(string)` | n/a | yes |
+| buckets | List of buckets with source and destination | `list(map(string))` | n/a | yes |
 | component\_version | Version of the component | `string` | n/a | yes |
 | name | name to use for component | `string` | n/a | yes |
 | change\_description | description of changes since last version | `string` | `null` | no |

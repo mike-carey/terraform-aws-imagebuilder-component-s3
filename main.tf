@@ -1,8 +1,20 @@
+terraform {
+  experiments = [variable_validation]
+}
+
 locals {
+  download_buckets = [for b in var.buckets : b if length(regexall("^s3://", b.source)) > 0]
+  upload_buckets   = [for b in var.buckets : b if length(regexall("^s3://", b.source)) == 0]
+  directories      = [for d in local.download_buckets.*.destination : d if length(regexall(".*\\.\\w+$", d)) == 0]
+
   data = templatefile("${path.module}/component.yml.tpl", {
-    description = var.description
-    name        = var.name
-    commands    = var.commands
+    description        = var.description
+    name               = var.name
+    max_attempts       = var.max_attempts
+    download_buckets   = local.download_buckets
+    upload_buckets     = local.upload_buckets
+    create_directories = var.create_directories
+    directories        = local.directories
   })
 }
 

@@ -10,9 +10,27 @@ variable "cloudformation_timeout" {
   type        = number
 }
 
-variable "commands" {
-  description = "List of strings. Each string is a shell command"
-  type        = list(string)
+variable "buckets" {
+  description = "The buckets to download files from. If the source is an s3 url, the bucket will be considered a download; otherwise, an upload"
+  type = list(object({
+    source      = string
+    destination = string
+  }))
+
+  # validation {
+  #   condition     = length(var.buckets) > 0
+  #   error_message = "The buckets variable cannot be empty."
+  # }
+}
+
+variable "create_directories" {
+  description = "If true, an ExecuteBash step will be added before the uploads/downloads"
+  default     = true
+}
+
+variable "max_attempts" {
+  description = "The maximum number of attempts to fetch"
+  default     = 3
 }
 
 variable "component_version" {
@@ -43,11 +61,15 @@ variable "name" {
   type        = string
 }
 
-# TODO: add validation
 variable "platform" {
   default     = "Linux"
   description = "platform of component (Linux or Windows)"
   type        = string
+
+  # validation {
+  #   condition     = contains(["Linux", "Windows"], var.platform)
+  #   error_message = "The platform variable must be one of: [Linux, Windows]."
+  # }
 }
 
 variable "tags" {
