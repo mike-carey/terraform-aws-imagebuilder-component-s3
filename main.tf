@@ -1,7 +1,3 @@
-terraform {
-  experiments = [variable_validation]
-}
-
 locals {
   download_buckets = [for b in var.buckets : b if length(regexall("^s3://", b.source)) > 0]
   upload_buckets   = [for b in var.buckets : b if length(regexall("^s3://", b.source)) == 0]
