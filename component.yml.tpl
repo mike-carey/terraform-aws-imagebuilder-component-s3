@@ -26,7 +26,7 @@ phases:
         %{~ endfor ~}
       %{~ endif ~}
       %{~ if length(upload_buckets) > 0 ~}
-      - name: arbitrary-s3-download
+      - name: arbitrary-s3-upload
         action: S3Upload
         maxAttempts: ${max_attempts}
         inputs:
