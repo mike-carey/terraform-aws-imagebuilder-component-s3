@@ -22,15 +22,29 @@ module "tags" {
   }, var.additional_tags)
 }
 
-module "test_shell_component" {
-  source  = "rhythmictech/imagebuilder-component-shell/aws"
-  version = "~> 0.1.0"
+module "test_s3_component" {
+  source = "git::https://github.com/mike-carey/imagebuilder-component-s3/aws"
 
   component_version = "1.0.0"
   description       = "Testing component"
   name              = "testing-component"
-  commands          = ["echo 'Testing Component'"]
-  tags              = local.tags
+
+  buckets = [
+    {
+      source      = "s3://download-bucket/file.txt"
+      destination = "/var/ami/file.txt"
+    },
+    {
+      source      = "s3://download-bucket/dependencies/*"
+      destination = "/var/ami/deps"
+    },
+    {
+      source      = "/var/log/my-custom-script.log"
+      destination = "s3://upload-bucket/logs/my-custom-script.log"
+    },
+  ]
+
+  tags = local.tags
 }
 
 module "test_recipe" {
